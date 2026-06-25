@@ -44,6 +44,23 @@ export type {
 export { SUPPORTED_LANGUAGES } from './snippet.types.js';
 
 export type {
+  GitHubRepo,
+  GitHubCommit,
+  GitHubPullRequest,
+  GitHubIssue,
+  GitHubConnection,
+} from './github.types.js';
+
+export type {
+  LeetCodeStats,
+  LeetCodeSubmission,
+  LeetCodeContest,
+  LeetCodeStreaks,
+  LeetCodeManualEntry,
+  LeetCodeProfile,
+} from './leetcode.types.js';
+
+export type {
   Task,
   Subtask,
   TaskAttachment,

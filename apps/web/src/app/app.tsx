@@ -12,6 +12,8 @@ import { ProjectsPage } from '@/features/projects/components/projects-page';
 import { ProjectDetailPage } from '@/features/projects/components/project-detail-page';
 import { DocumentsPage } from '@/features/documents/components/documents-page';
 import { SnippetsPage } from '@/features/snippets/components/snippets-page';
+import { GitHubPage } from '@/features/github/components/github-page';
+import { LeetCodePage } from '@/features/leetcode/components/leetcode-page';
 import { SettingsPage } from '@/features/settings/components/settings-page';
 
 function PlaceholderPage({ title }: { title: string }) {
@@ -51,8 +53,8 @@ function App() {
               <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
               <Route path="/documents" element={<DocumentsPage />} />
               <Route path="/snippets" element={<SnippetsPage />} />
-              <Route path="/github" element={<PlaceholderPage title="GitHub" />} />
-              <Route path="/leetcode" element={<PlaceholderPage title="LeetCode" />} />
+              <Route path="/github" element={<GitHubPage />} />
+              <Route path="/leetcode" element={<LeetCodePage />} />
               <Route path="/api-tester" element={<PlaceholderPage title="API Tester" />} />
               <Route path="/productivity" element={<PlaceholderPage title="Productivity" />} />
               <Route path="/chat" element={<PlaceholderPage title="Chat" />} />

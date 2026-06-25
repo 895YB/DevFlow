@@ -7,6 +7,8 @@ import projectRoutes from '../modules/projects/project.routes.js';
 import taskRoutes from '../modules/tasks/task.routes.js';
 import documentRoutes from '../modules/documents/document.routes.js';
 import snippetRoutes from '../modules/snippets/snippet.routes.js';
+import githubRoutes from '../modules/github/github.routes.js';
+import leetcodeRoutes from '../modules/leetcode/leetcode.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import webhookRoutes from '../modules/webhooks/webhooks.routes.js';
 
@@ -37,6 +39,8 @@ router.use('/v1/workspaces/:workspaceId/projects', projectRoutes);
 router.use('/v1/workspaces/:workspaceId/projects/:projectId/tasks', taskRoutes);
 router.use('/v1/workspaces/:workspaceId/documents', documentRoutes);
 router.use('/v1/workspaces/:workspaceId/snippets', snippetRoutes);
+router.use('/v1/integrations/github', githubRoutes);
+router.use('/v1/integrations/leetcode', leetcodeRoutes);
 router.use('/v1/upload', uploadRoutes);
 router.use('/webhooks', webhookRoutes);
 
