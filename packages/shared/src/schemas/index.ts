@@ -68,6 +68,39 @@ export type {
 } from './snippet.schema.js';
 
 export {
+  keyValuePairSchema,
+  requestBodySchema,
+  requestAuthSchema,
+  apiRequestInputSchema,
+  createCollectionSchema,
+  updateCollectionSchema,
+  proxyRequestSchema,
+  createEnvironmentSchema,
+  updateEnvironmentSchema,
+} from './api-tester.schema.js';
+export type {
+  ApiRequestInput,
+  CreateCollectionInput,
+  UpdateCollectionInput,
+  ProxyRequestInput,
+  CreateEnvironmentInput,
+  UpdateEnvironmentInput,
+} from './api-tester.schema.js';
+
+export {
+  createSessionSchema,
+  completeSessionSchema,
+  createPlanItemSchema,
+  updatePlanItemSchema,
+} from './productivity.schema.js';
+export type {
+  CreateSessionInput,
+  CompleteSessionInput,
+  CreatePlanItemInput,
+  UpdatePlanItemInput,
+} from './productivity.schema.js';
+
+export {
   createTaskSchema,
   updateTaskSchema,
   reorderTasksSchema,

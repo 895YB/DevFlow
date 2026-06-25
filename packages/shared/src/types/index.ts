@@ -68,3 +68,26 @@ export type {
   TaskComment,
   TaskActivity,
 } from './task.types.js';
+
+export type {
+  HttpMethod,
+  BodyType,
+  AuthType,
+  KeyValuePair,
+  RequestBody,
+  RequestAuth,
+  ApiRequest,
+  ApiCollection,
+  ApiEnvironment,
+  ApiResponseData,
+  ApiHistoryEntry,
+} from './api-tester.types.js';
+
+export type {
+  PomodoroType,
+  PomodoroSession,
+  DailyPlanItem,
+  DailyPlan,
+  PomodoroStatsBucket,
+  PomodoroStats,
+} from './productivity.types.js';

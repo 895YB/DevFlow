@@ -9,6 +9,8 @@ import documentRoutes from '../modules/documents/document.routes.js';
 import snippetRoutes from '../modules/snippets/snippet.routes.js';
 import githubRoutes from '../modules/github/github.routes.js';
 import leetcodeRoutes from '../modules/leetcode/leetcode.routes.js';
+import apiTesterRoutes from '../modules/api-tester/api-tester.routes.js';
+import productivityRoutes from '../modules/productivity/productivity.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import webhookRoutes from '../modules/webhooks/webhooks.routes.js';
 
@@ -41,6 +43,8 @@ router.use('/v1/workspaces/:workspaceId/documents', documentRoutes);
 router.use('/v1/workspaces/:workspaceId/snippets', snippetRoutes);
 router.use('/v1/integrations/github', githubRoutes);
 router.use('/v1/integrations/leetcode', leetcodeRoutes);
+router.use('/v1/integrations/api-tester', apiTesterRoutes);
+router.use('/v1/productivity', productivityRoutes);
 router.use('/v1/upload', uploadRoutes);
 router.use('/webhooks', webhookRoutes);
 

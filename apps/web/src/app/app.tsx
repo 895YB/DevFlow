@@ -14,6 +14,8 @@ import { DocumentsPage } from '@/features/documents/components/documents-page';
 import { SnippetsPage } from '@/features/snippets/components/snippets-page';
 import { GitHubPage } from '@/features/github/components/github-page';
 import { LeetCodePage } from '@/features/leetcode/components/leetcode-page';
+import { ApiTesterPage } from '@/features/api-tester/components/api-tester-page';
+import { ProductivityPage } from '@/features/productivity/components/productivity-page';
 import { SettingsPage } from '@/features/settings/components/settings-page';
 
 function PlaceholderPage({ title }: { title: string }) {
@@ -55,8 +57,8 @@ function App() {
               <Route path="/snippets" element={<SnippetsPage />} />
               <Route path="/github" element={<GitHubPage />} />
               <Route path="/leetcode" element={<LeetCodePage />} />
-              <Route path="/api-tester" element={<PlaceholderPage title="API Tester" />} />
-              <Route path="/productivity" element={<PlaceholderPage title="Productivity" />} />
+              <Route path="/api-tester" element={<ApiTesterPage />} />
+              <Route path="/productivity" element={<ProductivityPage />} />
               <Route path="/chat" element={<PlaceholderPage title="Chat" />} />
 
               <Route path="/settings" element={<SettingsPage />} />
