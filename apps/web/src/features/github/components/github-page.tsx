@@ -8,13 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { GitBranch, Star, GitFork, Lock, Globe, ArrowLeft, GitCommit, GitPullRequest, CircleDot } from 'lucide-react';
+import { GitBranch, Star, GitFork, Lock, Globe, ArrowLeft, GitCommit, GitPullRequest, CircleDot, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import type { GitHubRepo } from '@devflow/shared';
 
 export function GitHubPage() {
   const { data: status, isLoading: statusLoading } = useGitHubStatus();
-  const { data: repos, isLoading: reposLoading } = useGitHubRepos();
+  const isConnected = !!status?.connected;
+  const { data: repos, isLoading: reposLoading, error: reposError } = useGitHubRepos(isConnected);
   const connectGitHub = useConnectGitHub();
   const disconnectGitHub = useDisconnectGitHub();
 
@@ -39,7 +40,7 @@ export function GitHubPage() {
     );
   }
 
-  if (!status?.connected) {
+  if (!isConnected) {
     return (
       <div>
         <h1 className="text-2xl font-bold tracking-tight">GitHub</h1>
@@ -49,6 +50,11 @@ export function GitHubPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             View repositories, commits, pull requests, and issues.
           </p>
+          {connectGitHub.isError && (
+            <div className="mt-4 w-full max-w-md">
+              <ErrorAlert message="Failed to connect. Please check your token and try again." />
+            </div>
+          )}
           <Button className="mt-4" onClick={() => setConnectOpen(true)}>
             Connect GitHub
           </Button>
@@ -73,6 +79,9 @@ export function GitHubPage() {
                     Create a token at GitHub Settings &gt; Developer Settings &gt; Personal Access Tokens with repo scope.
                   </p>
                 </div>
+                {connectGitHub.isError && (
+                  <ErrorAlert message="Invalid token or GitHub is unavailable. Please try again." />
+                )}
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setConnectOpen(false)}>Cancel</Button>
                   <Button type="submit" disabled={!token.trim() || connectGitHub.isPending}>
@@ -97,20 +106,30 @@ export function GitHubPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">GitHub</h1>
-          <p className="text-sm text-muted-foreground">Connected as @{status.username}</p>
+          <p className="text-sm text-muted-foreground">Connected as @{status?.username}</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => disconnectGitHub.mutate()}>
           Disconnect
         </Button>
       </div>
 
+      {reposError && (
+        <div className="mt-4">
+          <ErrorAlert message="Failed to load repositories. Your token may have expired." />
+        </div>
+      )}
+
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {reposLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-28 animate-pulse rounded-lg border border-border bg-muted/50" />
           ))
+        ) : !repos?.length ? (
+          <div className="col-span-full rounded-lg border border-dashed border-border p-12 text-center">
+            <p className="text-muted-foreground">No repositories found.</p>
+          </div>
         ) : (
-          repos?.map((repo) => (
+          repos.map((repo) => (
             <Card
               key={repo.repoId}
               className="cursor-pointer transition-shadow hover:shadow-md"
@@ -143,9 +162,17 @@ export function GitHubPage() {
 function RepoDetail({ owner, repo, repoData, onBack }: {
   owner: string; repo: string; repoData: GitHubRepo; onBack: () => void;
 }) {
-  const { data: commits } = useGitHubCommits(owner, repo);
-  const { data: pulls } = useGitHubPulls(owner, repo);
-  const { data: issues } = useGitHubIssues(owner, repo);
+  const { data: commits, isLoading: commitsLoading, error: commitsError } = useGitHubCommits(owner, repo);
+  const { data: pulls, isLoading: pullsLoading, error: pullsError } = useGitHubPulls(owner, repo);
+  const { data: issues, isLoading: issuesLoading, error: issuesError } = useGitHubIssues(owner, repo);
+
+  const renderLoading = () => (
+    <div className="space-y-2">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-16 animate-pulse rounded-md border border-border bg-muted/50" />
+      ))}
+    </div>
+  );
 
   return (
     <div>
@@ -177,7 +204,9 @@ function RepoDetail({ owner, repo, repoData, onBack }: {
         </TabsList>
 
         <TabsContent value="commits" className="mt-4 space-y-2">
-          {!commits?.length ? (
+          {commitsError ? (
+            <ErrorAlert message="Failed to load commits." />
+          ) : commitsLoading ? renderLoading() : !commits?.length ? (
             <p className="text-sm text-muted-foreground">No commits found.</p>
           ) : commits.map((c) => (
             <div key={c.sha} className="flex items-start gap-3 rounded-md border border-border p-3">
@@ -191,7 +220,9 @@ function RepoDetail({ owner, repo, repoData, onBack }: {
         </TabsContent>
 
         <TabsContent value="pulls" className="mt-4 space-y-2">
-          {!pulls?.length ? (
+          {pullsError ? (
+            <ErrorAlert message="Failed to load pull requests." />
+          ) : pullsLoading ? renderLoading() : !pulls?.length ? (
             <p className="text-sm text-muted-foreground">No pull requests found.</p>
           ) : pulls.map((p) => (
             <div key={p.number} className="flex items-center gap-3 rounded-md border border-border p-3">
@@ -206,7 +237,9 @@ function RepoDetail({ owner, repo, repoData, onBack }: {
         </TabsContent>
 
         <TabsContent value="issues" className="mt-4 space-y-2">
-          {!issues?.length ? (
+          {issuesError ? (
+            <ErrorAlert message="Failed to load issues." />
+          ) : issuesLoading ? renderLoading() : !issues?.length ? (
             <p className="text-sm text-muted-foreground">No issues found.</p>
           ) : issues.map((i) => (
             <div key={i.number} className="flex items-center gap-3 rounded-md border border-border p-3">
@@ -220,6 +253,15 @@ function RepoDetail({ owner, repo, repoData, onBack }: {
           ))}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function ErrorAlert({ message }: { message: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+      <AlertCircle className="h-4 w-4 shrink-0" />
+      {message}
     </div>
   );
 }

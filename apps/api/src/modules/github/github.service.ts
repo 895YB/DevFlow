@@ -3,31 +3,57 @@ import { AppError } from '../../utils/app-error.js';
 import { logger } from '../../utils/logger.js';
 
 const GITHUB_API = 'https://api.github.com';
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+const CACHE_TTL = 15 * 60 * 1000;
+const REQUEST_TIMEOUT = 15000;
 
 async function githubFetch(path: string, token: string) {
-  const res = await fetch(`${GITHUB_API}${path}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github.v3+json',
-      'User-Agent': 'DevFlow',
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-  if (!res.ok) {
-    logger.error('GitHub API error', { path, status: res.status });
-    throw AppError.badRequest(`GitHub API error: ${res.status}`);
+  try {
+    const res = await fetch(`${GITHUB_API}${path}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'DevFlow',
+      },
+      signal: controller.signal,
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      throw AppError.unauthorized(
+        'GitHub token is invalid or expired. Please reconnect your account.',
+      );
+    }
+
+    if (res.status === 404) {
+      throw AppError.notFound('GitHub resource not found');
+    }
+
+    if (!res.ok) {
+      logger.error('GitHub API error', { path, status: res.status });
+      throw AppError.badRequest(`GitHub API error: ${res.status}`);
+    }
+
+    return res.json();
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw AppError.badRequest('GitHub API request timed out. Please try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return res.json();
 }
 
 export async function connectGitHub(
   userId: string,
   accessToken: string,
 ): Promise<IGitHubConnection> {
-  const userData = await githubFetch('/user', accessToken) as {
-    id: number; login: string;
+  const userData = (await githubFetch('/user', accessToken)) as {
+    id: number;
+    login: string;
   };
 
   const existing = await GitHubConnection.findOne({ user: userId });
@@ -53,23 +79,38 @@ export async function disconnectGitHub(userId: string): Promise<void> {
   if (!result) throw AppError.notFound('GitHub not connected');
 }
 
-export async function getConnection(userId: string): Promise<IGitHubConnection | null> {
+export async function getConnection(
+  userId: string,
+): Promise<IGitHubConnection | null> {
   return GitHubConnection.findOne({ user: userId });
 }
 
-export async function getRepos(userId: string): Promise<IGitHubConnection['cachedRepos']> {
+export async function getRepos(
+  userId: string,
+): Promise<IGitHubConnection['cachedRepos']> {
   const conn = await GitHubConnection.findOne({ user: userId });
   if (!conn) throw AppError.notFound('GitHub not connected');
 
-  const cacheExpired = !conn.reposCachedAt ||
+  const cacheExpired =
+    !conn.reposCachedAt ||
     Date.now() - conn.reposCachedAt.getTime() > CACHE_TTL;
 
   if (cacheExpired) {
     try {
-      const repos = await githubFetch('/user/repos?sort=updated&per_page=100', conn.accessToken) as Array<{
-        id: number; name: string; full_name: string; description: string | null;
-        language: string | null; stargazers_count: number; forks_count: number;
-        private: boolean; html_url: string; updated_at: string;
+      const repos = (await githubFetch(
+        '/user/repos?sort=updated&per_page=100',
+        conn.accessToken,
+      )) as Array<{
+        id: number;
+        name: string;
+        full_name: string;
+        description: string | null;
+        language: string | null;
+        stargazers_count: number;
+        forks_count: number;
+        private: boolean;
+        html_url: string;
+        updated_at: string;
       }>;
 
       conn.cachedRepos = repos.map((r) => ({
@@ -87,8 +128,17 @@ export async function getRepos(userId: string): Promise<IGitHubConnection['cache
       conn.reposCachedAt = new Date();
       await conn.save();
     } catch (err) {
+      if (
+        err instanceof AppError &&
+        err.statusCode === 401 &&
+        conn.cachedRepos.length === 0
+      ) {
+        throw err;
+      }
       if (conn.cachedRepos.length > 0) {
-        logger.warn('GitHub API fetch failed, using cached data', { error: err });
+        logger.warn('GitHub API fetch failed, using cached data', {
+          error: err,
+        });
         return conn.cachedRepos;
       }
       throw err;
@@ -106,10 +156,10 @@ export async function getRepoCommits(
   const conn = await GitHubConnection.findOne({ user: userId });
   if (!conn) throw AppError.notFound('GitHub not connected');
 
-  const commits = await githubFetch(
-    `/repos/${owner}/${repo}/commits?per_page=20`,
+  const commits = (await githubFetch(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?per_page=20`,
     conn.accessToken,
-  ) as Array<{
+  )) as Array<{
     sha: string;
     commit: { message: string; author: { name: string; date: string } };
     html_url: string;
@@ -132,12 +182,17 @@ export async function getRepoPulls(
   const conn = await GitHubConnection.findOne({ user: userId });
   if (!conn) throw AppError.notFound('GitHub not connected');
 
-  const pulls = await githubFetch(
-    `/repos/${owner}/${repo}/pulls?state=all&per_page=20`,
+  const pulls = (await githubFetch(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls?state=all&per_page=20`,
     conn.accessToken,
-  ) as Array<{
-    number: number; title: string; state: string; merged_at: string | null;
-    user: { login: string }; created_at: string; html_url: string;
+  )) as Array<{
+    number: number;
+    title: string;
+    state: string;
+    merged_at: string | null;
+    user: { login: string };
+    created_at: string;
+    html_url: string;
   }>;
 
   return pulls.map((p) => ({
@@ -158,12 +213,16 @@ export async function getRepoIssues(
   const conn = await GitHubConnection.findOne({ user: userId });
   if (!conn) throw AppError.notFound('GitHub not connected');
 
-  const issues = await githubFetch(
-    `/repos/${owner}/${repo}/issues?state=all&per_page=20`,
+  const issues = (await githubFetch(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues?state=all&per_page=20`,
     conn.accessToken,
-  ) as Array<{
-    number: number; title: string; state: string;
-    labels: Array<{ name: string }>; created_at: string; html_url: string;
+  )) as Array<{
+    number: number;
+    title: string;
+    state: string;
+    labels: Array<{ name: string }>;
+    created_at: string;
+    html_url: string;
     pull_request?: unknown;
   }>;
 
@@ -183,14 +242,18 @@ export async function getActivity(userId: string) {
   const conn = await GitHubConnection.findOne({ user: userId });
   if (!conn) throw AppError.notFound('GitHub not connected');
 
-  const events = await githubFetch(
-    `/users/${conn.username}/events?per_page=20`,
+  const events = (await githubFetch(
+    `/users/${encodeURIComponent(conn.username)}/events?per_page=20`,
     conn.accessToken,
-  ) as Array<{
+  )) as Array<{
     type: string;
     repo: { name: string };
     created_at: string;
-    payload: { commits?: Array<{ message: string }>; action?: string; pull_request?: { title: string } };
+    payload: {
+      commits?: Array<{ message: string }>;
+      action?: string;
+      pull_request?: { title: string };
+    };
   }>;
 
   return events.slice(0, 15).map((e) => ({
@@ -203,7 +266,11 @@ export async function getActivity(userId: string) {
 
 function formatEventSummary(event: {
   type: string;
-  payload: { commits?: Array<{ message: string }>; action?: string; pull_request?: { title: string } };
+  payload: {
+    commits?: Array<{ message: string }>;
+    action?: string;
+    pull_request?: { title: string };
+  };
 }): string {
   switch (event.type) {
     case 'PushEvent':

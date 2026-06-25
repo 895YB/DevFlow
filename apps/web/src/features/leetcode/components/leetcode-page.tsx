@@ -8,10 +8,19 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Flame, RefreshCw, Trophy, Clock } from 'lucide-react';
+import { BarChart3, Flame, RefreshCw, Trophy, Clock, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { LeetCodeProfile } from '@devflow/shared';
+
+function ErrorAlert({ message }: { message: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+      <AlertCircle className="h-4 w-4 shrink-0" />
+      {message}
+    </div>
+  );
+}
 
 function isProfile(data: unknown): data is LeetCodeProfile {
   return !!data && typeof data === 'object' && '_id' in data;
@@ -77,6 +86,9 @@ export function LeetCodePage() {
                     autoFocus
                   />
                 </div>
+                {connectLC.isError && (
+                  <ErrorAlert message="Username not found or LeetCode is unavailable. Please check and try again." />
+                )}
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setConnectOpen(false)}>Cancel</Button>
                   <Button type="submit" disabled={!username.trim() || connectLC.isPending}>

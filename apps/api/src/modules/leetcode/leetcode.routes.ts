@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { requireAuth } from '../../middleware/auth.js';
+import { searchLimiter } from '../../middleware/rate-limiter.js';
 import * as controller from './leetcode.controller.js';
 
 const router = Router();
 
 router.use(requireAuth);
+router.use(searchLimiter);
 
 router.post('/connect', controller.connect);
 router.delete('/disconnect', controller.disconnect);

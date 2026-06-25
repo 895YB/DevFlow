@@ -3,9 +3,16 @@ import { AppError } from '../../utils/app-error.js';
 import { logger } from '../../utils/logger.js';
 
 const LEETCODE_API = 'https://leetcode.com/graphql';
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const CACHE_TTL = 30 * 60 * 1000;
+const REQUEST_TIMEOUT = 15000;
 
-async function leetcodeFetch(query: string, variables: Record<string, unknown> = {}) {
+async function leetcodeFetch(
+  query: string,
+  variables: Record<string, unknown> = {},
+) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
   try {
     const res = await fetch(LEETCODE_API, {
       method: 'POST',
@@ -14,21 +21,33 @@ async function leetcodeFetch(query: string, variables: Record<string, unknown> =
         'User-Agent': 'DevFlow',
       },
       body: JSON.stringify({ query, variables }),
+      signal: controller.signal,
     });
 
     if (!res.ok) {
       throw new Error(`LeetCode API returned ${res.status}`);
     }
 
-    const data = await res.json() as { data: unknown; errors?: unknown[] };
+    const data = (await res.json()) as { data: unknown; errors?: unknown[] };
     if (data.errors) {
-      throw new Error(`LeetCode GraphQL errors: ${JSON.stringify(data.errors)}`);
+      throw new Error(
+        `LeetCode GraphQL errors: ${JSON.stringify(data.errors)}`,
+      );
     }
 
     return data.data;
   } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw AppError.badRequest(
+        'LeetCode API request timed out. Please try again.',
+      );
+    }
     logger.error('LeetCode API error', { error: err });
-    throw AppError.badRequest('Failed to fetch LeetCode data. The username may be incorrect or LeetCode may be unavailable.');
+    throw AppError.badRequest(
+      'Failed to fetch LeetCode data. The username may be incorrect or LeetCode may be unavailable.',
+    );
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -56,11 +75,13 @@ async function fetchUserProfile(username: string) {
     }
   `;
 
-  const data = await leetcodeFetch(query, { username }) as {
+  const data = (await leetcodeFetch(query, { username })) as {
     matchedUser: {
       username: string;
       profile: { ranking: number; reputation: number; userAvatar: string };
-      submitStatsGlobal: { acSubmissionNum: Array<{ difficulty: string; count: number }> };
+      submitStatsGlobal: {
+        acSubmissionNum: Array<{ difficulty: string; count: number }>;
+      };
     } | null;
     allQuestionsCount: Array<{ difficulty: string; count: number }>;
   };
@@ -73,8 +94,10 @@ async function fetchUserProfile(username: string) {
   const acStats = user.submitStatsGlobal.acSubmissionNum;
   const totalQuestions = data.allQuestionsCount;
 
-  const getStat = (arr: Array<{ difficulty: string; count: number }>, diff: string) =>
-    arr.find((s) => s.difficulty === diff)?.count ?? 0;
+  const getStat = (
+    arr: Array<{ difficulty: string; count: number }>,
+    diff: string,
+  ) => arr.find((s) => s.difficulty === diff)?.count ?? 0;
 
   return {
     profile: {
@@ -108,9 +131,12 @@ async function fetchRecentSubmissions(username: string) {
     }
   `;
 
-  const data = await leetcodeFetch(query, { username, limit: 20 }) as {
+  const data = (await leetcodeFetch(query, { username, limit: 20 })) as {
     recentAcSubmissionList: Array<{
-      title: string; titleSlug: string; timestamp: string; lang: string;
+      title: string;
+      titleSlug: string;
+      timestamp: string;
+      lang: string;
     }>;
   };
 
@@ -122,6 +148,41 @@ async function fetchRecentSubmissions(username: string) {
     language: s.lang,
     timestamp: new Date(Number(s.timestamp) * 1000),
   }));
+}
+
+function calculateStreak(
+  submissions: Array<{ timestamp: Date }>,
+  currentStreak: number,
+  longestStreak: number,
+) {
+  if (submissions.length === 0) {
+    return { current: 0, longest: longestStreak, lastSolveDate: null as Date | null };
+  }
+
+  const lastSolve = submissions[0]!.timestamp;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const lastSolveDay = new Date(lastSolve);
+  lastSolveDay.setHours(0, 0, 0, 0);
+
+  const daysSinceLastSolve = Math.floor(
+    (today.getTime() - lastSolveDay.getTime()) / 86400000,
+  );
+
+  let newStreak: number;
+  if (daysSinceLastSolve === 0) {
+    newStreak = Math.max(currentStreak, 1);
+  } else if (daysSinceLastSolve === 1) {
+    newStreak = currentStreak + 1;
+  } else {
+    newStreak = 0;
+  }
+
+  return {
+    current: newStreak,
+    longest: Math.max(longestStreak, newStreak),
+    lastSolveDate: lastSolve,
+  };
 }
 
 export async function connectLeetCode(
@@ -154,15 +215,20 @@ export async function disconnectLeetCode(userId: string): Promise<void> {
   if (!result) throw AppError.notFound('LeetCode not connected');
 }
 
-export async function getProfile(userId: string): Promise<ILeetCodeProfile | null> {
+export async function getProfile(
+  userId: string,
+): Promise<ILeetCodeProfile | null> {
   return LeetCodeProfile.findOne({ user: userId });
 }
 
-export async function syncProfile(userId: string): Promise<ILeetCodeProfile> {
+export async function syncProfile(
+  userId: string,
+): Promise<ILeetCodeProfile> {
   const profile = await LeetCodeProfile.findOne({ user: userId });
   if (!profile) throw AppError.notFound('LeetCode not connected');
 
-  const cacheExpired = !profile.lastSyncedAt ||
+  const cacheExpired =
+    !profile.lastSyncedAt ||
     Date.now() - profile.lastSyncedAt.getTime() > CACHE_TTL;
 
   if (!cacheExpired) return profile;
@@ -178,29 +244,14 @@ export async function syncProfile(userId: string): Promise<ILeetCodeProfile> {
     profile.recentSubmissions = submissions;
     profile.lastSyncedAt = new Date();
 
-    // Update streak
-    if (submissions.length > 0) {
-      const lastSolve = submissions[0]!.timestamp;
-      profile.streaks.lastSolveDate = lastSolve;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const lastSolveDay = new Date(lastSolve);
-      lastSolveDay.setHours(0, 0, 0, 0);
-
-      const daysDiff = Math.floor((today.getTime() - lastSolveDay.getTime()) / 86400000);
-
-      if (daysDiff <= 1) {
-        profile.streaks.current = (profile.streaks.current || 0) + (daysDiff === 0 ? 0 : 0);
-        if (profile.streaks.current === 0) profile.streaks.current = 1;
-      } else {
-        profile.streaks.current = 0;
-      }
-
-      if (profile.streaks.current > profile.streaks.longest) {
-        profile.streaks.longest = profile.streaks.current;
-      }
-    }
+    const streakResult = calculateStreak(
+      submissions,
+      profile.streaks.current,
+      profile.streaks.longest,
+    );
+    profile.streaks.current = streakResult.current;
+    profile.streaks.longest = streakResult.longest;
+    profile.streaks.lastSolveDate = streakResult.lastSolveDate;
 
     await profile.save();
     return profile;
@@ -212,7 +263,12 @@ export async function syncProfile(userId: string): Promise<ILeetCodeProfile> {
 
 export async function addManualEntry(
   userId: string,
-  data: { problemName: string; difficulty: string; notes?: string; solutionCode?: string },
+  data: {
+    problemName: string;
+    difficulty: string;
+    notes?: string;
+    solutionCode?: string;
+  },
 ): Promise<ILeetCodeProfile> {
   const profile = await LeetCodeProfile.findOne({ user: userId });
   if (!profile) throw AppError.notFound('LeetCode not connected');
