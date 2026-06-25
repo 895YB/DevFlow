@@ -32,9 +32,6 @@ export function TaskDetailSheet({ task, project, workspaceId, onClose }: TaskDet
   const addComment = useAddComment(workspaceId, project._id, task._id);
   const [commentText, setCommentText] = useState('');
 
-  const statusName = project.statuses.find((s) => s._id === String(task.status))?.name ?? 'Unknown';
-  const statusColor = project.statuses.find((s) => s._id === String(task.status))?.color ?? '#6B7280';
-
   const handleStatusChange = (statusId: string) => {
     updateTask.mutate({ taskId: task._id, status: statusId });
   };
