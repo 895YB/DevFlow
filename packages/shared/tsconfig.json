@@ -1,0 +1,10 @@
+{
+  "extends": "@devflow/tsconfig/node.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "verbatimModuleSyntax": false
+  },
+  "include": ["src"]
+}

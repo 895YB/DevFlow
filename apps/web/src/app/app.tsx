@@ -1,0 +1,74 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import { AppProviders } from './providers/app-providers';
+import { ErrorBoundary } from '@/components/shared/error-boundary';
+import { WorkspaceProvider } from './providers/workspace-provider';
+import { LandingPage } from '@/features/landing/components/landing-page';
+import { SignInPage } from '@/features/auth/components/sign-in-page';
+import { SignUpPage } from '@/features/auth/components/sign-up-page';
+import { ProtectedRoute } from '@/features/auth/components/protected-route';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { DashboardPage } from '@/features/dashboard/components/dashboard-page';
+import { ProjectsPage } from '@/features/projects/components/projects-page';
+import { ProjectDetailPage } from '@/features/projects/components/project-detail-page';
+import { DocumentsPage } from '@/features/documents/components/documents-page';
+import { SettingsPage } from '@/features/settings/components/settings-page';
+
+function PlaceholderPage({ title }: { title: string }) {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <div className="mt-8 rounded-lg border border-dashed border-border p-12 text-center">
+        <p className="text-muted-foreground">
+          This feature will be built in a future phase.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
+    <AppProviders>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/sign-in/*" element={<SignInPage />} />
+          <Route path="/sign-up/*" element={<SignUpPage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route
+              element={
+                <WorkspaceProvider>
+                  <DashboardLayout />
+                </WorkspaceProvider>
+              }
+            >
+              <Route path="/dashboard" element={<DashboardPage />} />
+
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
+              <Route path="/documents" element={<DocumentsPage />} />
+              <Route path="/snippets" element={<PlaceholderPage title="Snippets" />} />
+              <Route path="/github" element={<PlaceholderPage title="GitHub" />} />
+              <Route path="/leetcode" element={<PlaceholderPage title="LeetCode" />} />
+              <Route path="/api-tester" element={<PlaceholderPage title="API Tester" />} />
+              <Route path="/productivity" element={<PlaceholderPage title="Productivity" />} />
+              <Route path="/chat" element={<PlaceholderPage title="Chat" />} />
+
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings/*" element={<SettingsPage />} />
+
+              <Route path="/notifications" element={<PlaceholderPage title="Notifications" />} />
+            </Route>
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AppProviders>
+    </ErrorBoundary>
+  );
+}
+
+export default App;

@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+.turbo
+.git
+.github
+.env
+.env.*
+*.md
+docs/
+coverage/
+playwright-report/
+test-results/
+docker/data/
