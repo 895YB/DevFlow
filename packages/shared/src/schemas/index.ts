@@ -101,6 +101,15 @@ export type {
 } from './productivity.schema.js';
 
 export {
+  createChannelSchema,
+  editMessageSchema,
+} from './chat.schema.js';
+export type {
+  CreateChannelInput,
+  EditMessageInput,
+} from './chat.schema.js';
+
+export {
   createTaskSchema,
   updateTaskSchema,
   reorderTasksSchema,

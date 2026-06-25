@@ -11,6 +11,9 @@ import githubRoutes from '../modules/github/github.routes.js';
 import leetcodeRoutes from '../modules/leetcode/leetcode.routes.js';
 import apiTesterRoutes from '../modules/api-tester/api-tester.routes.js';
 import productivityRoutes from '../modules/productivity/productivity.routes.js';
+import notificationRoutes from '../modules/notifications/notification.routes.js';
+import chatRoutes from '../modules/chat/chat.routes.js';
+import activityRoutes from '../modules/activity/activity.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import webhookRoutes from '../modules/webhooks/webhooks.routes.js';
 
@@ -45,6 +48,9 @@ router.use('/v1/integrations/github', githubRoutes);
 router.use('/v1/integrations/leetcode', leetcodeRoutes);
 router.use('/v1/integrations/api-tester', apiTesterRoutes);
 router.use('/v1/productivity', productivityRoutes);
+router.use('/v1/notifications', notificationRoutes);
+router.use('/v1/workspaces/:workspaceId/chat', chatRoutes);
+router.use('/v1/workspaces/:workspaceId/activity', activityRoutes);
 router.use('/v1/upload', uploadRoutes);
 router.use('/webhooks', webhookRoutes);
 

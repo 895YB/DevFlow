@@ -16,20 +16,10 @@ import { GitHubPage } from '@/features/github/components/github-page';
 import { LeetCodePage } from '@/features/leetcode/components/leetcode-page';
 import { ApiTesterPage } from '@/features/api-tester/components/api-tester-page';
 import { ProductivityPage } from '@/features/productivity/components/productivity-page';
+import { ChatPage } from '@/features/chat/components/chat-page';
+import { NotificationsPage } from '@/features/notifications/components/notifications-page';
 import { SettingsPage } from '@/features/settings/components/settings-page';
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-      <div className="mt-8 rounded-lg border border-dashed border-border p-12 text-center">
-        <p className="text-muted-foreground">
-          This feature will be built in a future phase.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function App() {
   return (
@@ -59,12 +49,12 @@ function App() {
               <Route path="/leetcode" element={<LeetCodePage />} />
               <Route path="/api-tester" element={<ApiTesterPage />} />
               <Route path="/productivity" element={<ProductivityPage />} />
-              <Route path="/chat" element={<PlaceholderPage title="Chat" />} />
+              <Route path="/chat" element={<ChatPage />} />
 
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/settings/*" element={<SettingsPage />} />
 
-              <Route path="/notifications" element={<PlaceholderPage title="Notifications" />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
             </Route>
           </Route>
 

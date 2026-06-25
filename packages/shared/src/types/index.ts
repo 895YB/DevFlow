@@ -91,3 +91,16 @@ export type {
   PomodoroStatsBucket,
   PomodoroStats,
 } from './productivity.types.js';
+
+export type {
+  NotificationType,
+  ActivityType,
+  ActivityResourceType,
+  Notification,
+  ChatChannel,
+  ChatMessage,
+  ActivityEvent,
+  PresenceData,
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from './realtime.types.js';

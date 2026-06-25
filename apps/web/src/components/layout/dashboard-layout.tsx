@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Outlet } from 'react-router';
 import { Sidebar } from './sidebar';
 import { TopBar } from './top-bar';
+import { useWorkspaceSocket } from '@/features/realtime/hooks/use-workspace-socket';
 
 export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useWorkspaceSocket();
 
   return (
     <div className="flex h-screen overflow-hidden">

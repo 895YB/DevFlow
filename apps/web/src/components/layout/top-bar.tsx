@@ -4,11 +4,11 @@ import {
   Moon,
   Monitor,
   Search,
-  Bell,
   LogOut,
   User,
   ChevronDown,
 } from 'lucide-react';
+import { NotificationDropdown } from '@/features/notifications/components/notification-dropdown';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -68,9 +68,7 @@ export function TopBar() {
           <ThemeIcon className="h-4 w-4" />
         </Button>
 
-        <Button variant="ghost" size="icon" aria-label="Notifications">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <NotificationDropdown />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
