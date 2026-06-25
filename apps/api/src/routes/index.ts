@@ -16,6 +16,9 @@ import chatRoutes from '../modules/chat/chat.routes.js';
 import activityRoutes from '../modules/activity/activity.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import webhookRoutes from '../modules/webhooks/webhooks.routes.js';
+import searchRoutes from '../modules/search/search.routes.js';
+import dashboardRoutes from '../modules/dashboard/dashboard.routes.js';
+import aiRoutes from '../modules/ai/ai.routes.js';
 
 const router = Router();
 
@@ -52,6 +55,9 @@ router.use('/v1/notifications', notificationRoutes);
 router.use('/v1/workspaces/:workspaceId/chat', chatRoutes);
 router.use('/v1/workspaces/:workspaceId/activity', activityRoutes);
 router.use('/v1/upload', uploadRoutes);
+router.use('/v1/workspaces/:workspaceId/search', searchRoutes);
+router.use('/v1/workspaces/:workspaceId/dashboard', dashboardRoutes);
+router.use('/v1/ai', aiRoutes);
 router.use('/webhooks', webhookRoutes);
 
 export default router;

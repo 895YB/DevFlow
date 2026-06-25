@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: devflow-api
+    runtime: node
+    rootDir: apps/api
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: node dist/server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_WEBHOOK_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+    healthCheckPath: /health
+    autoDeploy: true

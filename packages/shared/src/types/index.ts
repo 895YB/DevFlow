@@ -93,6 +93,16 @@ export type {
 } from './productivity.types.js';
 
 export type {
+  DashboardStats,
+  DashboardTask,
+  DashboardProject,
+  DashboardLeetCode,
+  DashboardGitHub,
+  DashboardData,
+  SearchResult,
+} from './dashboard.types.js';
+
+export type {
   NotificationType,
   ActivityType,
   ActivityResourceType,

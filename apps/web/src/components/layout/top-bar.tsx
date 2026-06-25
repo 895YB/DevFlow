@@ -21,7 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTheme } from '@/app/providers/theme-provider';
 import { useNavigate } from 'react-router';
 
-export function TopBar() {
+export function TopBar({ onOpenSearch }: { onOpenSearch?: () => void }) {
   const { user } = useUser();
   const { signOut } = useClerk();
   const { theme, setTheme } = useTheme();
@@ -48,12 +48,13 @@ export function TopBar() {
           variant="outline"
           size="sm"
           className="hidden w-64 justify-start text-muted-foreground md:flex"
-          aria-label="Open search"
+          aria-label="Open search (Ctrl+K)"
+          onClick={onOpenSearch}
         >
           <Search className="mr-2 h-4 w-4" />
           <span>Search...</span>
           <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-            Ctrl K
+            ⌘K
           </kbd>
         </Button>
       </div>
