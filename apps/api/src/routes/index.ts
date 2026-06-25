@@ -6,6 +6,7 @@ import workspaceRoutes from '../modules/workspaces/workspace.routes.js';
 import projectRoutes from '../modules/projects/project.routes.js';
 import taskRoutes from '../modules/tasks/task.routes.js';
 import documentRoutes from '../modules/documents/document.routes.js';
+import snippetRoutes from '../modules/snippets/snippet.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import webhookRoutes from '../modules/webhooks/webhooks.routes.js';
 
@@ -35,6 +36,7 @@ router.use('/v1/workspaces', workspaceRoutes);
 router.use('/v1/workspaces/:workspaceId/projects', projectRoutes);
 router.use('/v1/workspaces/:workspaceId/projects/:projectId/tasks', taskRoutes);
 router.use('/v1/workspaces/:workspaceId/documents', documentRoutes);
+router.use('/v1/workspaces/:workspaceId/snippets', snippetRoutes);
 router.use('/v1/upload', uploadRoutes);
 router.use('/webhooks', webhookRoutes);
 

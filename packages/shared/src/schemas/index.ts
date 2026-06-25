@@ -53,6 +53,21 @@ export type {
 } from './document.schema.js';
 
 export {
+  createSnippetSchema,
+  updateSnippetSchema,
+  snippetQuerySchema,
+  createSnippetFolderSchema,
+  updateSnippetFolderSchema,
+} from './snippet.schema.js';
+export type {
+  CreateSnippetInput,
+  UpdateSnippetInput,
+  SnippetQueryInput,
+  CreateSnippetFolderInput,
+  UpdateSnippetFolderInput,
+} from './snippet.schema.js';
+
+export {
   createTaskSchema,
   updateTaskSchema,
   reorderTasksSchema,

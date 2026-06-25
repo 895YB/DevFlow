@@ -37,6 +37,13 @@ export type {
 } from './document.types.js';
 
 export type {
+  Snippet,
+  SnippetFolder,
+  SupportedLanguage,
+} from './snippet.types.js';
+export { SUPPORTED_LANGUAGES } from './snippet.types.js';
+
+export type {
   Task,
   Subtask,
   TaskAttachment,
