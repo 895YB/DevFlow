@@ -54,6 +54,30 @@ export async function softDeleteUserByClerkId(clerkId: string): Promise<void> {
   await User.findOneAndUpdate({ clerkId }, { $set: { deletedAt: new Date() } });
 }
 
+export async function updateAvatar(userId: string, avatarUrl: string): Promise<IUser> {
+  const user = await User.findOneAndUpdate(
+    { _id: userId, deletedAt: null },
+    { $set: { avatar: avatarUrl } },
+    { new: true },
+  );
+  if (!user) throw AppError.notFound('User not found');
+  return user;
+}
+
+export async function removeAvatar(userId: string): Promise<IUser> {
+  const user = await User.findOneAndUpdate(
+    { _id: userId, deletedAt: null },
+    { $set: { avatar: '' } },
+    { new: true },
+  );
+  if (!user) throw AppError.notFound('User not found');
+  return user;
+}
+
+export async function deleteAccount(clerkId: string): Promise<void> {
+  await User.findOneAndUpdate({ clerkId }, { $set: { deletedAt: new Date() } });
+}
+
 export async function updateProfile(
   userId: string,
   data: {
@@ -65,6 +89,10 @@ export async function updateProfile(
       leetcodeUsername?: string;
       portfolioUrl?: string;
       location?: string;
+      website?: string;
+      linkedinUrl?: string;
+      timezone?: string;
+      preferredLanguage?: string;
     };
   },
 ): Promise<IUser> {

@@ -34,6 +34,7 @@ const navItems = [
   { to: '/api-tester', icon: ApiIcon, label: 'API Tester' },
   { to: '/productivity', icon: Timer, label: 'Productivity' },
   { to: '/analytics', icon: TrendingUp, label: 'Analytics' },
+  { to: '/ai', icon: Zap, label: 'AI (Soon)' },
   { to: '/chat', icon: MessagesSquare, label: 'Chat' },
 ];
 

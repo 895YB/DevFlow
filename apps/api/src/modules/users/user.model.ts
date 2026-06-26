@@ -15,6 +15,10 @@ export interface IUser extends Document {
     leetcodeUsername: string;
     portfolioUrl: string;
     location: string;
+    website: string;
+    linkedinUrl: string;
+    timezone: string;
+    preferredLanguage: string;
   };
 
   preferences: {
@@ -28,6 +32,10 @@ export interface IUser extends Document {
       mentions: boolean;
       projectUpdates: boolean;
       chatMessages: boolean;
+      githubNotifications: boolean;
+      leetcodeNotifications: boolean;
+      teamActivity: boolean;
+      documentUpdates: boolean;
     };
   };
 
@@ -68,6 +76,10 @@ const userSchema = new Schema<IUser>(
       leetcodeUsername: { type: String, default: '' },
       portfolioUrl: { type: String, default: '' },
       location: { type: String, default: '' },
+      website: { type: String, default: '' },
+      linkedinUrl: { type: String, default: '' },
+      timezone: { type: String, default: '' },
+      preferredLanguage: { type: String, default: '' },
     },
 
     preferences: {
@@ -81,6 +93,10 @@ const userSchema = new Schema<IUser>(
         mentions: { type: Boolean, default: true },
         projectUpdates: { type: Boolean, default: true },
         chatMessages: { type: Boolean, default: true },
+        githubNotifications: { type: Boolean, default: true },
+        leetcodeNotifications: { type: Boolean, default: true },
+        teamActivity: { type: Boolean, default: true },
+        documentUpdates: { type: Boolean, default: true },
       },
     },
 

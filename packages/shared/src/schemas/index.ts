@@ -1,9 +1,11 @@
 export {
   updateUserProfileSchema,
+  updateAvatarSchema,
   updateUserPreferencesSchema,
 } from './user.schema.js';
 export type {
   UpdateUserProfileInput,
+  UpdateAvatarInput,
   UpdateUserPreferencesInput,
 } from './user.schema.js';
 

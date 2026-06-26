@@ -6,6 +6,7 @@ import { WorkspaceProvider } from './providers/workspace-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProtectedRoute } from '@/features/auth/components/protected-route';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { SettingsPage } from '@/features/settings/components/settings-page';
 
 // Eagerly-loaded (part of the auth critical path)
 import { LandingPage } from '@/features/landing/components/landing-page';
@@ -46,11 +47,34 @@ const ChatPage = lazy(() =>
 const NotificationsPage = lazy(() =>
   import('@/features/notifications/components/notifications-page').then((m) => ({ default: m.NotificationsPage })),
 );
-const SettingsPage = lazy(() =>
-  import('@/features/settings/components/settings-page').then((m) => ({ default: m.SettingsPage })),
-);
 const AnalyticsPage = lazy(() =>
   import('@/features/analytics/components/analytics-page').then((m) => ({ default: m.AnalyticsPage })),
+);
+const AiPage = lazy(() =>
+  import('@/features/ai/components/ai-page').then((m) => ({ default: m.AiPage })),
+);
+
+// Settings sections (lazy)
+const ProfileSettings = lazy(() =>
+  import('@/features/settings/components/sections/profile-settings').then((m) => ({ default: m.ProfileSettings })),
+);
+const AccountSettings = lazy(() =>
+  import('@/features/settings/components/sections/account-settings').then((m) => ({ default: m.AccountSettings })),
+);
+const WorkspaceSettings = lazy(() =>
+  import('@/features/settings/components/sections/workspace-settings').then((m) => ({ default: m.WorkspaceSettings })),
+);
+const AppearanceSettings = lazy(() =>
+  import('@/features/settings/components/sections/appearance-settings').then((m) => ({ default: m.AppearanceSettings })),
+);
+const NotificationSettings = lazy(() =>
+  import('@/features/settings/components/sections/notification-settings').then((m) => ({ default: m.NotificationSettings })),
+);
+const ShortcutsSettings = lazy(() =>
+  import('@/features/settings/components/sections/shortcuts-settings').then((m) => ({ default: m.ShortcutsSettings })),
+);
+const ExportSettings = lazy(() =>
+  import('@/features/settings/components/sections/export-settings').then((m) => ({ default: m.ExportSettings })),
 );
 
 // ── Page-level loading fallback ───────────────────────────────────────────────
@@ -70,12 +94,30 @@ function PageSkeleton() {
   );
 }
 
+function SectionSkeleton() {
+  return (
+    <div className="space-y-4 py-2" aria-busy="true" aria-label="Loading section">
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-4 w-64" />
+      <Skeleton className="h-32 w-full rounded-xl" />
+    </div>
+  );
+}
+
 // ── Lazy wrapper with error boundary + suspense ───────────────────────────────
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function Section({ children }: { children: React.ReactNode }) {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<SectionSkeleton />}>{children}</Suspense>
     </ErrorBoundary>
   );
 }
@@ -110,8 +152,20 @@ function App() {
                 <Route path="/chat" element={<Page><ChatPage /></Page>} />
                 <Route path="/notifications" element={<Page><NotificationsPage /></Page>} />
                 <Route path="/analytics" element={<Page><AnalyticsPage /></Page>} />
-                <Route path="/settings" element={<Page><SettingsPage /></Page>} />
-                <Route path="/settings/*" element={<Page><SettingsPage /></Page>} />
+                <Route path="/ai" element={<Page><AiPage /></Page>} />
+
+                {/* Settings — nested routes rendered via <Outlet> in SettingsPage */}
+                <Route path="/settings" element={<SettingsPage />}>
+                  <Route index element={<Navigate to="profile" replace />} />
+                  <Route path="profile" element={<Section><ProfileSettings /></Section>} />
+                  <Route path="account" element={<Section><AccountSettings /></Section>} />
+                  <Route path="workspace" element={<Section><WorkspaceSettings /></Section>} />
+                  <Route path="appearance" element={<Section><AppearanceSettings /></Section>} />
+                  <Route path="notifications" element={<Section><NotificationSettings /></Section>} />
+                  <Route path="shortcuts" element={<Section><ShortcutsSettings /></Section>} />
+                  <Route path="export" element={<Section><ExportSettings /></Section>} />
+                  <Route path="ai" element={<Section><AiPage /></Section>} />
+                </Route>
               </Route>
             </Route>
 

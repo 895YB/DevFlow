@@ -4,6 +4,10 @@ export interface UserProfile {
   leetcodeUsername: string;
   portfolioUrl: string;
   location: string;
+  website: string;
+  linkedinUrl: string;
+  timezone: string;
+  preferredLanguage: string;
 }
 
 export interface NotificationPreferences {
@@ -15,6 +19,10 @@ export interface NotificationPreferences {
   mentions: boolean;
   projectUpdates: boolean;
   chatMessages: boolean;
+  githubNotifications: boolean;
+  leetcodeNotifications: boolean;
+  teamActivity: boolean;
+  documentUpdates: boolean;
 }
 
 export interface UserPreferences {

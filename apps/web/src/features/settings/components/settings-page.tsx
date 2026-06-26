@@ -1,136 +1,95 @@
-import { useUser } from '@clerk/clerk-react';
-import { useTheme } from '@/app/providers/theme-provider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { NavLink, Outlet } from 'react-router';
+import {
+  User,
+  Shield,
+  Building2,
+  Palette,
+  Bell,
+  Keyboard,
+  Download,
+  Cpu,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const NAV = [
+  { to: '/settings/profile', icon: User, label: 'Profile' },
+  { to: '/settings/account', icon: Shield, label: 'Account' },
+  { to: '/settings/workspace', icon: Building2, label: 'Workspace' },
+  { to: '/settings/appearance', icon: Palette, label: 'Appearance' },
+  { to: '/settings/notifications', icon: Bell, label: 'Notifications' },
+  { to: '/settings/shortcuts', icon: Keyboard, label: 'Shortcuts' },
+  { to: '/settings/export', icon: Download, label: 'Export Data' },
+  { to: '/settings/ai', icon: Cpu, label: 'AI Features' },
+] as const;
+
 export function SettingsPage() {
-  const { user } = useUser();
-  const { theme, setTheme } = useTheme();
-
-  const themes = [
-    { value: 'light' as const, icon: Sun, label: 'Light' },
-    { value: 'dark' as const, icon: Moon, label: 'Dark' },
-    { value: 'system' as const, icon: Monitor, label: 'System' },
-  ];
-
   return (
-    <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-      <p className="mt-1 text-muted-foreground">
-        Manage your profile and preferences.
-      </p>
-
-      <Separator className="my-6" />
-
-      <section>
-        <h2 className="text-lg font-semibold">Profile</h2>
-        <div className="mt-4 flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.imageUrl} alt={user?.fullName ?? ''} />
-            <AvatarFallback>
-              {user?.firstName?.[0]}
-              {user?.lastName?.[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium">{user?.fullName}</p>
-            <p className="text-sm text-muted-foreground">
-              {user?.emailAddresses[0]?.emailAddress}
-            </p>
-          </div>
+    <div className="flex min-h-full gap-0">
+      {/* Sidebar */}
+      <aside
+        className="hidden w-56 shrink-0 border-r border-border md:block"
+        aria-label="Settings navigation"
+      >
+        <div className="sticky top-0 p-4">
+          <h1 className="px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Settings
+          </h1>
+          <nav className="mt-2 space-y-0.5" aria-label="Settings sections">
+            {NAV.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+                  )
+                }
+              >
+                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
+      </aside>
 
-        <div className="mt-6 grid gap-4">
-          <div className="grid gap-2">
-            <label htmlFor="displayName" className="text-sm font-medium">
-              Display Name
-            </label>
-            <Input
-              id="displayName"
-              defaultValue={user?.fullName ?? ''}
-              placeholder="Your display name"
-            />
-          </div>
-          <div className="grid gap-2">
-            <label htmlFor="bio" className="text-sm font-medium">
-              Bio
-            </label>
-            <Input id="bio" placeholder="A short bio about yourself" />
-          </div>
-          <div className="grid gap-2">
-            <label htmlFor="portfolioUrl" className="text-sm font-medium">
-              Portfolio URL
-            </label>
-            <Input
-              id="portfolioUrl"
-              placeholder="https://yourportfolio.com"
-              type="url"
-            />
-          </div>
+      {/* Mobile header */}
+      <div className="block w-full md:hidden">
+        <div className="overflow-x-auto border-b border-border px-4 py-2">
+          <nav className="flex gap-1" aria-label="Settings sections">
+            {NAV.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  cn(
+                    'flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
+                    isActive
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent/50',
+                  )
+                }
+              >
+                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
+      </div>
 
-        <Button className="mt-4" size="sm">
-          Save Profile
-        </Button>
-      </section>
-
-      <Separator className="my-6" />
-
-      <section>
-        <h2 className="text-lg font-semibold">Appearance</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Choose your preferred theme.
-        </p>
-        <div className="mt-4 flex gap-2">
-          {themes.map((t) => (
-            <Button
-              key={t.value}
-              variant="outline"
-              size="sm"
-              onClick={() => setTheme(t.value)}
-              className={cn(
-                theme === t.value && 'border-primary bg-primary/5 text-primary',
-              )}
-            >
-              <t.icon className="mr-2 h-4 w-4" />
-              {t.label}
-            </Button>
-          ))}
+      {/* Content */}
+      <main
+        className="min-w-0 flex-1 p-6 md:p-8"
+        aria-label="Settings content"
+      >
+        <div className="mx-auto max-w-2xl">
+          <Outlet />
         </div>
-      </section>
-
-      <Separator className="my-6" />
-
-      <section>
-        <h2 className="text-lg font-semibold">Connected Accounts</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Connect your GitHub and LeetCode accounts.
-        </p>
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between rounded-lg border border-border p-4">
-            <div>
-              <p className="font-medium">GitHub</p>
-              <p className="text-sm text-muted-foreground">Not connected</p>
-            </div>
-            <Button variant="outline" size="sm">
-              Connect
-            </Button>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border border-border p-4">
-            <div>
-              <p className="font-medium">LeetCode</p>
-              <p className="text-sm text-muted-foreground">Not connected</p>
-            </div>
-            <Button variant="outline" size="sm">
-              Connect
-            </Button>
-          </div>
-        </div>
-      </section>
+      </main>
     </div>
   );
 }
