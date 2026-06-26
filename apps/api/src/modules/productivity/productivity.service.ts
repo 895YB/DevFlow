@@ -138,7 +138,11 @@ async function computeStreak(userId: string, now: Date): Promise<number> {
   let streak = 0;
   const cursor = new Date(now);
   cursor.setHours(0, 0, 0, 0);
-
+  // If the user hasn't completed a session today yet, start from yesterday
+  // so a streak earned through yesterday isn't shown as 0 until they start.
+  if (!activeDays.has(cursor.toISOString().slice(0, 10))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
   while (activeDays.has(cursor.toISOString().slice(0, 10))) {
     streak++;
     cursor.setDate(cursor.getDate() - 1);

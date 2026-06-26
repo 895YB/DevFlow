@@ -98,9 +98,20 @@ export type {
   DashboardProject,
   DashboardLeetCode,
   DashboardGitHub,
+  DashboardActivityItem,
+  DashboardApiRequest,
+  DashboardPomodoroSummary,
+  DashboardUpcomingTask,
   DashboardData,
   SearchResult,
 } from './dashboard.types.js';
+
+export type {
+  AnalyticsPeriod,
+  AnalyticsBucket,
+  AnalyticsTotals,
+  AnalyticsData,
+} from './analytics.types.js';
 
 export type {
   NotificationType,

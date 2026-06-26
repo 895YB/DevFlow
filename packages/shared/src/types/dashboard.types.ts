@@ -37,17 +37,57 @@ export interface DashboardGitHub {
   repoCount: number;
 }
 
+export interface DashboardActivityItem {
+  _id: string;
+  type: string;
+  resourceType: string;
+  resourceTitle: string;
+  actorName: string;
+  actorAvatar: string;
+  createdAt: string;
+}
+
+export interface DashboardApiRequest {
+  _id: string;
+  method: string;
+  url: string;
+  status: number | null;
+  duration: number | null;
+  executedAt: string;
+}
+
+export interface DashboardPomodoroSummary {
+  todaySessions: number;
+  todayFocusMinutes: number;
+  streak: number;
+}
+
+export interface DashboardUpcomingTask {
+  _id: string;
+  title: string;
+  dueDate: string;
+  priority: 'urgent' | 'high' | 'medium' | 'low' | 'none';
+  projectName: string;
+  projectColor: string;
+  projectId: string;
+}
+
 export interface DashboardData {
   stats: DashboardStats;
   recentProjects: DashboardProject[];
   todaysTasks: DashboardTask[];
   leetcode: DashboardLeetCode | null;
   github: DashboardGitHub | null;
+  recentActivity: DashboardActivityItem[];
+  recentApiRequests: DashboardApiRequest[];
+  pomodoroSummary: DashboardPomodoroSummary;
+  unreadNotifications: number;
+  upcomingTasks: DashboardUpcomingTask[];
 }
 
 export interface SearchResult {
   _id: string;
-  type: 'project' | 'task' | 'document' | 'snippet';
+  type: 'project' | 'task' | 'document' | 'snippet' | 'api_collection' | 'notification';
   title: string;
   subtitle: string;
   url: string;

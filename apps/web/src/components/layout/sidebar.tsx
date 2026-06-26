@@ -13,6 +13,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Zap,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ const navItems = [
   { to: '/leetcode', icon: BarChart3, label: 'LeetCode' },
   { to: '/api-tester', icon: ApiIcon, label: 'API Tester' },
   { to: '/productivity', icon: Timer, label: 'Productivity' },
+  { to: '/analytics', icon: TrendingUp, label: 'Analytics' },
   { to: '/chat', icon: MessagesSquare, label: 'Chat' },
 ];
 

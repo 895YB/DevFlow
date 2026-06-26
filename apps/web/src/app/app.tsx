@@ -49,6 +49,9 @@ const NotificationsPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/features/settings/components/settings-page').then((m) => ({ default: m.SettingsPage })),
 );
+const AnalyticsPage = lazy(() =>
+  import('@/features/analytics/components/analytics-page').then((m) => ({ default: m.AnalyticsPage })),
+);
 
 // ── Page-level loading fallback ───────────────────────────────────────────────
 
@@ -106,6 +109,7 @@ function App() {
                 <Route path="/productivity" element={<Page><ProductivityPage /></Page>} />
                 <Route path="/chat" element={<Page><ChatPage /></Page>} />
                 <Route path="/notifications" element={<Page><NotificationsPage /></Page>} />
+                <Route path="/analytics" element={<Page><AnalyticsPage /></Page>} />
                 <Route path="/settings" element={<Page><SettingsPage /></Page>} />
                 <Route path="/settings/*" element={<Page><SettingsPage /></Page>} />
               </Route>

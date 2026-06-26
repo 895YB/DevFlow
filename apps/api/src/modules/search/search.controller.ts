@@ -9,6 +9,6 @@ export const search = catchAsync(async (req: Request, res: Response) => {
   if (!q || q.length < 2) throw AppError.badRequest('Query must be at least 2 characters');
   if (q.length > 100) throw AppError.badRequest('Query too long');
 
-  const results = await searchService.globalSearch(req.workspaceId!, q);
+  const results = await searchService.globalSearch(req.workspaceId!, req.userId!, q);
   sendSuccess(res, results);
 });
