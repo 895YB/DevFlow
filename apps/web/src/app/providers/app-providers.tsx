@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './theme-provider';
 import { SocketProvider } from './socket-provider';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
 
@@ -19,9 +20,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   if (!CLERK_KEY) {
     return (
       <QueryClientProvider client={queryClient}>
-        <SocketProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </SocketProvider>
+        <TooltipProvider>
+          <SocketProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </SocketProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     );
   }
@@ -29,9 +32,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider publishableKey={CLERK_KEY}>
       <QueryClientProvider client={queryClient}>
-        <SocketProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </SocketProvider>
+        <TooltipProvider>
+          <SocketProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </SocketProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </ClerkProvider>
   );
