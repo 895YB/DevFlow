@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './theme-provider';
 import { SocketProvider } from './socket-provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from 'sonner';
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
 
@@ -22,7 +23,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <SocketProvider>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              {children}
+              <Toaster richColors closeButton position="bottom-right" />
+            </ThemeProvider>
           </SocketProvider>
         </TooltipProvider>
       </QueryClientProvider>
@@ -34,7 +38,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <SocketProvider>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              {children}
+              <Toaster richColors closeButton position="bottom-right" />
+            </ThemeProvider>
           </SocketProvider>
         </TooltipProvider>
       </QueryClientProvider>
