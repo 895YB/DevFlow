@@ -12,6 +12,7 @@ const router = Router();
 
 router.use(requireAuth);
 
+router.post('/me/sync', userController.syncMe);
 router.get('/me', userController.getMe);
 router.patch('/me', validate(updateUserProfileSchema), userController.updateMe);
 router.patch('/me/avatar', validate(updateAvatarSchema), userController.updateAvatar);

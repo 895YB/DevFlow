@@ -64,8 +64,10 @@ export const remove = catchAsync(async (req: Request, res: Response) => {
 
 export const getMyWorkspaces = catchAsync(async (req: Request, res: Response) => {
   const user = await findUserByClerkId(req.userId!);
-  if (!user) throw AppError.unauthorized();
-
+  if (!user) {
+    sendSuccess(res, []);
+    return;
+  }
   const workspaces = await workspaceService.getUserWorkspaces(String(user._id));
   sendSuccess(res, workspaces);
 });

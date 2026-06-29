@@ -9,6 +9,31 @@ export async function findUserById(id: string): Promise<IUser | null> {
   return User.findOne({ _id: id, deletedAt: null });
 }
 
+export async function upsertUser(data: {
+  clerkId: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+}): Promise<IUser> {
+  const displayName = [data.firstName, data.lastName].filter(Boolean).join(' ') || data.email.split('@')[0]!;
+  const user = await User.findOneAndUpdate(
+    { clerkId: data.clerkId },
+    {
+      $setOnInsert: { clerkId: data.clerkId },
+      $set: {
+        email: data.email,
+        firstName: data.firstName ?? '',
+        lastName: data.lastName ?? '',
+        displayName,
+        avatar: data.avatar ?? '',
+      },
+    },
+    { upsert: true, new: true },
+  );
+  return user!;
+}
+
 export async function createUser(data: {
   clerkId: string;
   email: string;

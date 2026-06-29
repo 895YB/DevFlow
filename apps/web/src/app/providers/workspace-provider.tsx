@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import axios from 'axios';
 
 interface Workspace {
   _id: string;
@@ -35,7 +36,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       return data.data as Workspace[];
     },
     staleTime: 5 * 60_000,
-    retry: 1,
+    retry: (count, err) => {
+      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 429)) return false;
+      return count < 1;
+    },
   });
 
   const { mutate: createWorkspaceMutate } = useMutation({

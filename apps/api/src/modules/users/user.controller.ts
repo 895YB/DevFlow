@@ -4,6 +4,24 @@ import { sendSuccess } from '../../utils/api-response.js';
 import { AppError } from '../../utils/app-error.js';
 import * as userService from './user.service.js';
 
+export const syncMe = catchAsync(async (req: Request, res: Response) => {
+  const { email, firstName, lastName, avatar } = req.body as {
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  };
+  if (!email) throw AppError.badRequest('email is required');
+  const user = await userService.upsertUser({
+    clerkId: req.userId!,
+    email,
+    firstName,
+    lastName,
+    avatar,
+  });
+  sendSuccess(res, user, 200);
+});
+
 export const getMe = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.findUserByClerkId(req.userId!);
   if (!user) throw AppError.notFound('User not found');

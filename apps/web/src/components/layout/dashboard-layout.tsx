@@ -4,9 +4,11 @@ import { Sidebar } from './sidebar';
 import { TopBar } from './top-bar';
 import { useWorkspaceSocket } from '@/features/realtime/hooks/use-workspace-socket';
 import { CommandPalette, useCommandPalette } from '@/features/search/components/command-palette';
+import { useUserSync } from '@/features/auth/hooks/use-user-sync';
 
 export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useUserSync();
   useWorkspaceSocket();
   const { open, setOpen } = useCommandPalette();
 
