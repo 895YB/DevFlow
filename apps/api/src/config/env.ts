@@ -15,6 +15,8 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().optional().default(''),
   CLOUDINARY_API_SECRET: z.string().optional().default(''),
 
+  ANTHROPIC_API_KEY: z.string().optional().default(''),
+
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
 
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
