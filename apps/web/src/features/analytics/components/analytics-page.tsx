@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useAnalytics } from '../hooks/use-analytics';
+import { useWorkspace } from '@/app/providers/workspace-provider';
 import type { AnalyticsBucket, AnalyticsPeriod } from '@devflow/shared';
 
 // ── Chart primitives ──────────────────────────────────────────────────────────
@@ -279,7 +280,18 @@ function CompletionRing({ rate }: { rate: number }) {
 
 export function AnalyticsPage() {
   const [period, setPeriod] = useState<AnalyticsPeriod>('30d');
+  const { activeWorkspaceId } = useWorkspace();
   const { data, isLoading, isError, refetch } = useAnalytics(period);
+
+  if (!activeWorkspaceId) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center gap-3 text-center">
+        <TrendingUp className="h-10 w-10 text-muted-foreground" />
+        <p className="text-sm font-medium">No workspace selected</p>
+        <p className="text-xs text-muted-foreground">Create or select a workspace to view analytics.</p>
+      </div>
+    );
+  }
 
   if (isLoading) return <AnalyticsSkeleton />;
 
